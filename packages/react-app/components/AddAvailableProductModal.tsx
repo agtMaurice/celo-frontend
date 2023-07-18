@@ -8,25 +8,24 @@ import { toast } from "react-toastify";
 import { useDebounce } from "use-debounce";
 // Import our custom useContractSend hook to write a product to the marketplace contract
 import { useContractSend } from "@/hooks/contracts/useContractWrite";
-// Import the erc20 contract abi to get the cUSD balance
-import erc20Instance from "../abi/erc20.json";
+
 
 // Define the AddProductModal component
 const AddAvailableProductModal = ({id}:any) => {
   // The visible state is used to toggle the visibility of the modal
   const [visible, setVisible] = useState(false);
   // The following states are used to store the values of the input fields
-  const [addition, setAddition] = useState<string | number>(0);
+  const [productQuantity, setAddition] = useState<string | number>(0);
 
   // The following states are used to debounce the input fields
-  const [debouncedAddition] = useDebounce(addition, 500);
+  const [debouncedAddition] = useDebounce(productQuantity, 500);
   const [loading, setLoading] = useState("");
-  const [displayBalance, setDisplayBalance] = useState(false);
 
   // Check if all the input fields are filled
    const isComplete = () => {
-  
-    if (Number(addition) < 1) {
+    const numericQuantity = parseFloat(productQuantity);
+    if (!productQuantity || isNaN(numericQuantity) || numericQuantity < 1) {
+      const numericQuantity = parseFloat(productQuantity);
       toast.warn("Please enter a valid number (> 0)")
       return false;
     }
@@ -46,37 +45,42 @@ const AddAvailableProductModal = ({id}:any) => {
     debouncedAddition
   ]);
 
-  const addAvailable = async (e: any) => {
-    e.preventDefault();
-    try {
-    
-      await toast.promise(async () => {
-        if (!addMoreProduct) {
-            throw "Failed to add product";
-          }
-          setLoading("Adding...");
-          if (!isComplete) throw new Error("Please fill all fields");
-          // Add the product by calling the increaseProductAvailability function on the marketplace contract
-          const tx = await addMoreProduct();
-          setLoading("Waiting...");
-          // Wait for the transaction to be mined
-          await tx.wait();
-      }, {
-        pending: "Increasing availability of your products...",
-        success: "Products Added successfully",
-        error: "Something went wrong. Try again.",
-      });
-      // Display an error message if something goes wrong
-    } catch (e: any) {
-      console.log({ e });
-      toast.error(e?.message || "Something went wrong. Try again.");
-      // Clear the loading state after the availability is increased is added to a product
-    } finally {
-      setLoading("");
-      setVisible(false);
-      clearForm();
+ const addAvailable = async (e: React.FormEvent) => {
+  e.preventDefault();
+  try {
+    if (!isComplete()) {
+      throw new Error("Please fill all fields");
     }
-  };
+
+    await toast.promise(
+      async () => {
+        if (!addMoreProduct) {
+          throw new Error("Failed to add product");
+        }
+        setLoading("Adding...");
+        const tx = await addMoreProduct();
+        setLoading("Waiting...");
+        await tx.wait();
+      },
+      {
+        pending: "Increasing availability of your products...",
+        success: "Products added successfully",
+        error: {
+          render({ data }) {
+            throw new Error(data?.message || "Something went wrong. Try again.");
+          }
+      }
+    );
+  } catch (error: any) {
+    console.log(error);
+    toast.error(error?.message || "Something went wrong. Try again.");
+  } finally {
+    setLoading("");
+    setVisible(false);
+    clearForm();
+  }
+};
+
 
 
  
@@ -130,8 +134,12 @@ const AddAvailableProductModal = ({id}:any) => {
                       }}
                       required
                       type="number"
+                      min="1"
                       className="w-full bg-gray-100 p-2 mt-2 mb-3"
                     />
+                    <div className="invalid-feedback">
+                      Please enter a valid number.
+                  </div>
                   </div>
                   {/* Button to close the modal */}
                   <div className="bg-gray-200 px-4 py-3 text-right">
