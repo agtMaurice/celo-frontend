@@ -8,8 +8,7 @@ import { toast } from "react-toastify";
 import { useDebounce } from "use-debounce";
 // Import our custom useContractSend hook to write a product to the marketplace contract
 import { useContractSend } from "@/hooks/contracts/useContractWrite";
-// Import the erc20 contract abi to get the cUSD balance
-import erc20Instance from "../abi/erc20.json";
+
 
 // Define the AddProductModal component
 const AddAvailableProductModal = ({id}:any) => {
