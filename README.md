@@ -1,6 +1,6 @@
 # CELO FORNTEND CHALLENGE
 
-[LIVE TESTING](https://celo-frontend-react-app-gamma.vercel.app/)
+[LIVE TESTING](https://celo-frontend-react-1hr194obm-agtmaurice.vercel.app/)
 
 ## Project Details
 
