@@ -89,7 +89,7 @@ const Product = ({ id, setError, setLoading, clear }: any) => {
 
   // Define the purchaseProduct function that is called when the user clicks the purchase button
   const purchaseProduct = async () => {
-    setLoading("Approving ...");
+    setLoading("Approving product sale...");
     clear();
 
     try {

@@ -8,8 +8,6 @@ import { toast } from "react-toastify";
 import { useDebounce } from "use-debounce";
 // Import our custom useContractSend hook to write a product to the marketplace contract
 import { useContractSend } from "@/hooks/contracts/useContractWrite";
-// Import the erc20 contract abi to get the cUSD balance
-import erc20Instance from "../abi/erc20.json";
 
 // Define the AddProductModal component
 const AddAvailableProductModal = ({id}:any) => {
@@ -21,7 +19,6 @@ const AddAvailableProductModal = ({id}:any) => {
   // The following states are used to debounce the input fields
   const [debouncedAddition] = useDebounce(addition, 500);
   const [loading, setLoading] = useState("");
-  const [displayBalance, setDisplayBalance] = useState(false);
 
   // Check if all the input fields are filled
    const isComplete = () => {
@@ -29,8 +26,9 @@ const AddAvailableProductModal = ({id}:any) => {
     if (Number(addition) < 1) {
       toast.warn("Please enter a valid number (> 0)")
       return false;
+    }else{
+      return true;
     }
-    return true
   }
 
   // Clear the input fields after the availability has been increased.
@@ -55,14 +53,14 @@ const AddAvailableProductModal = ({id}:any) => {
             throw "Failed to add product";
           }
           setLoading("Adding...");
-          if (!isComplete) throw new Error("Please fill all fields");
+          if (!isComplete()) throw new Error("Please fill all fields");
           // Add the product by calling the increaseProductAvailability function on the marketplace contract
           const tx = await addMoreProduct();
           setLoading("Waiting...");
           // Wait for the transaction to be mined
           await tx.wait();
       }, {
-        pending: "Increasing availability of your products...",
+        pending: "Adding more products...",
         success: "Products Added successfully",
         error: "Something went wrong. Try again.",
       });
