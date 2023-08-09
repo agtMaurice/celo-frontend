@@ -24,7 +24,6 @@ const AddAvailableProductModal = ({id}:any) => {
    const isComplete = () => {
   
     if (Number(addition) < 1) {
-      toast.warn("Please enter a valid number (> 0)")
       return false;
     }else{
       return true;
@@ -53,7 +52,7 @@ const AddAvailableProductModal = ({id}:any) => {
             throw "Failed to add product";
           }
           setLoading("Adding...");
-          if (!isComplete()) throw new Error("Please fill all fields");
+          if (!isComplete()) throw new Error("Please enter a valid number (> 0)");
           // Add the product by calling the increaseProductAvailability function on the marketplace contract
           const tx = await addMoreProduct();
           setLoading("Waiting...");
